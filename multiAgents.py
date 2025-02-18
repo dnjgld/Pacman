@@ -75,7 +75,30 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+        # print(newPos)
+        # print(newFood)
+        # print(newScaredTimes)
+
+        # Consider reducing the distance to the nearest food
+        foods = newFood.asList()
+        if len(foods) == 0:
+            minFoodDistance = 0
+        else:
+            minFoodDistance = min([manhattanDistance(newPos, food) for food in foods])
+        
+        # Consider increasing the distance to the nearest ghost
+        ghostDistances = [manhattanDistance(newPos, ghost.getPosition()) for ghost in newGhostStates]
+        minGhostDistance = min(ghostDistances)
+
+        # if the ghost is not scared and too close, return a low score
+        if min(ghostDistances) < 3 and min(newScaredTimes) == 0:
+            return -1000
+
+        # else, return a score that is related to the distance to the nearest food
+        score = successorGameState.getScore() + (1.0 / float(minFoodDistance + 1))
+
+        # return successorGameState.getScore()
+        return score
 
 def scoreEvaluationFunction(currentGameState: GameState):
     """
