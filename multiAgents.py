@@ -368,9 +368,52 @@ def betterEvaluationFunction(currentGameState: GameState):
     evaluation function (question 5).
 
     DESCRIPTION: <write something here so we know what you did>
+    # The function return a score related to following factors:
+    # 1. The score of the current game state (base score)
+    # 2. The number of food left (the fewer food left, the higher the score)
+    # 3. The distance to the nearest food (the closer to the food, the higher the score)
+    # 4. The distance to the nearest ghost (the closer to the ghost, the lower the score)
+    # The evaluation function returns a score that is related to the above factors
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # util.raiseNotDefined()
+
+    # get the current position of pacman
+    pacmanPosition = currentGameState.getPacmanPosition()
+
+    # get the current score
+    score = currentGameState.getScore()
+
+    # consider the food factor
+    foods = currentGameState.getFood().asList()
+
+    # the fewer food left, the higher the score
+    score -= len(foods)
+
+    # if there is food left, more closer to the food, the higher the score
+    if len(foods) > 0:
+        # get the distance to the nearest food
+        minFoodDistance = min([manhattanDistance(pacmanPosition, food) for food in foods])
+        score += 1.0 / float(minFoodDistance + 1.0)
+        
+    # consider the ghost factor 
+    # get the current ghost states
+    ghostStates = currentGameState.getGhostStates() 
+    # get the distance to the nearest ghost
+    ghostDistances = [manhattanDistance(pacmanPosition, ghost.getPosition()) for ghost in ghostStates]
+
+    # consider the scared time of the ghosts
+    scaredTimes = [ghostState.scaredTimer for ghostState in ghostStates]
+    for i in range(len(ghostStates)):
+        if scaredTimes[i] > 0:
+            # If the ghost is scared, the closer to the ghost, the higher the score
+            score += 1.0 / (ghostDistances[i] + 1.0)
+        else:
+            # If the ghost is not scared, the closer to the ghost, the lower the score
+            score -= 1.0 / (ghostDistances[i] + 1.0)
+
+    return score
+
 
 # Abbreviation (don't modify existing, but you can add to them)
 better = betterEvaluationFunction
